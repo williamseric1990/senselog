@@ -1,0 +1,23 @@
+{
+  "name": "sensestore",
+  "version": "1.0.0",
+  "description": "Collects and stores data from connected sensors.",
+  "main": "senselog.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/sli/sensestore.git"
+  },
+  "author": "Cody Maden",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/sli/sensestore/issues"
+  },
+  "homepage": "https://github.com/sli/sensestore#readme",
+  "dependencies": {
+    "mongoose": "^4.0.6",
+    "socket.io": "^1.3.6"
+  }
+}
