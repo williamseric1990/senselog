@@ -9,6 +9,25 @@ var mclient = mongo(config.mongourl);
 var collection = mclient(config.collection);
 
 var clients = [];
+var checked = [];
+
+var requestData = function() {
+    // Check the current client and checked list, clearing if needed
+    if (checked.length >= clients.length) {
+        checked = [];
+    }
+
+    // Get a random client
+    var c = clients[Math.floor(Math.random()*clients.length)];
+
+    if (checked.indexOf(c) == -1) {
+        // Tell the client to send over sensor data
+        c.emit('all');
+    } else {
+        // Client has already been recently checked - try again
+        requestData();
+    }
+};
 
 io.on('connection', function(socket) {
 
@@ -56,6 +75,9 @@ io.on('connection', function(socket) {
         }
     });
 });
+
+// Start requesting data at regular intervals
+setInterval(requestData, config.request_delay*1000);
 
 http.listen(3000, function() {
     console.log('ready');
