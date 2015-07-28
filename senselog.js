@@ -1,7 +1,12 @@
 var http = require('http').Server(null);
 var io = require('socket.io').Server(http);
-var MongoClient = require('mongodb').MongoClient;
 var config = require('./config/config.json');
+
+var mongo = require('mongo-client');
+var insert = require('mongo-client/insert');
+
+var client = mongo(config.mongourl);
+var collection = client(config.collection);
 
 io.on('connection', function(socket) {
 
@@ -33,11 +38,7 @@ io.on('connection', function(socket) {
      */
     socket.on('all-data', function(data) {
         console.log('<- recieved data from ' + socket.id);
-        MongoClient.connect(config.mongourl, function(err, db) {
-            var collection = db.collection(config.collection);
-            collection.insert(data);
-            db.close();
-        });
+        insert(collection, data);
     });
 
 });
