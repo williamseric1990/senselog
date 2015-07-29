@@ -1,5 +1,5 @@
 var http = require('http').Server(null);
-var io = require('socket.io').Server(http);
+var io = require('socket.io')(http);
 var config = require('./config/config.json');
 
 var mongo = require('mongo-client');
