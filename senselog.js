@@ -12,6 +12,8 @@ var clients = [];
 var checked = [];
 
 var requestData = function() {
+    if (clients.length == 0) return; // don't bother if there are no clients
+
     // Check the current client and checked list, clearing if needed
     if (checked.length >= clients.length) {
         checked = [];
