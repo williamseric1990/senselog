@@ -5,6 +5,8 @@ var config = require('./config/config.json');
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 
+var CronJob = require('cron').CronJob;
+
 var clients = [];
 var checked = [];
 
@@ -27,16 +29,14 @@ var requestData = function() {
 
     if (checked.indexOf(c) == -1) {
         // Tell the client to send over sensor data
+        DEBUG('-> requesting data from ' + c.id);
         c.emit('all');
-    } else {
-        // Client has already been recently checked - try again
-        requestData();
     }
 };
 
 io.on('connection', function(socket) {
 
-    DEBUG('-> client connected');
+    DEBUG('-> client connected (' + socket.id + ')');
     clients[clients.length] = socket;
 
     /* Prototype of feedback feature - customize at will */
@@ -65,7 +65,6 @@ io.on('connection', function(socket) {
     socket.on('all-data', function(data) {
         DEBUG('-> recieved data from ' + data.name);
         DEBUG('   data: ' + JSON.stringify(data));
-        //var result = insert(collection, data);
         MongoClient.connect(config.url, function(err, db) {
             assert.equal(null, err);
             collection = db.collection(config.collection);
@@ -90,7 +89,9 @@ io.on('connection', function(socket) {
 });
 
 // Start requesting data at regular intervals
-setInterval(requestData, config.request_delay*1000);
+new CronJob('1 * * * * *', function() {
+    requestData();
+}, null, true, 'America/New_York');
 
 http.listen(3000, function() {
     console.log('senselog ready');
