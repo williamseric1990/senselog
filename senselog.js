@@ -2,11 +2,8 @@ var http = require('http').Server(null);
 var io = require('socket.io')(http);
 var config = require('./config/config.json');
 
-var mongo = require('mongo-client');
-var insert = require('mongo-client/insert');
-
-var mclient = mongo(config.mongourl);
-var collection = mclient(config.collection);
+var MongoClient = require('mongodb').MongoClient;
+var assert = require('assert');
 
 var clients = [];
 var checked = [];
@@ -66,9 +63,17 @@ io.on('connection', function(socket) {
      * the configured MongoDB collection.
      */
     socket.on('all-data', function(data) {
-        DEBUG('-> recieved data from ' + socket.id);
-        var result = insert(collection, data);
-        DEBUG("   inserion result: " + JSON.stringify(result));
+        DEBUG('-> recieved data from ' + data.name);
+        DEBUG('   data: ' + JSON.stringify(data));
+        //var result = insert(collection, data);
+        MongoClient.connect(config.url, function(err, db) {
+            assert.equal(null, err);
+            collection = db.collection(config.collection);
+            collection.insert(data, function(err, result) {
+                assert.equal(err, null);
+                db.close();
+            });
+        });
     });
 
 
