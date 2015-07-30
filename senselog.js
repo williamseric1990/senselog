@@ -68,7 +68,7 @@ io.on('connection', function(socket) {
     socket.on('all-data', function(data) {
         DEBUG('-> recieved data from ' + socket.id);
         var result = insert(collection, data);
-        DEBUG("   inserion result: " + result.stringify());
+        DEBUG("   inserion result: " + JSON.stringify(result));
     });
 
 
