@@ -11,6 +11,12 @@ var collection = mclient(config.collection);
 var clients = [];
 var checked = [];
 
+var DEBUG = function(message) {
+    if (config.debug && config.debug == true) {
+        console.log(message);
+    }
+}
+
 var requestData = function() {
     if (clients.length == 0) return; // don't bother if there are no clients
 
@@ -33,27 +39,26 @@ var requestData = function() {
 
 io.on('connection', function(socket) {
 
-    console.log('-> client connected');
+    DEBUG('-> client connected');
     clients[clients.length] = socket;
 
     /* Prototype of feedback feature - customize at will */
     socket.on('feedback', function(value) {
         if (value) {
-            console.log('<- pressed');
-            socket.emit('sensors');
+            DEBUG('on');
         } else {
-            console.log('<- released');
+            DEBUG('off');
         }
     });
 
     /* Data is discarded - placeholder for future features */
     socket.on('sensor-data', function(data) {
-        console.log(data);
+        DEBUG(data);
     });
 
     /* Data is discarded - placeholder for future features */
     socket.on('node-data', function(data) {
-        console.log(data);
+        DEBUG(data);
     });
 
     /* all-data signal
@@ -61,8 +66,9 @@ io.on('connection', function(socket) {
      * the configured MongoDB collection.
      */
     socket.on('all-data', function(data) {
-        console.log('<- recieved data from ' + socket.id);
-        insert(collection, data);
+        DEBUG('-> recieved data from ' + socket.id);
+        var result = insert(collection, data);
+        DEBUG("   inserion result: " + result);
     });
 
 
@@ -73,7 +79,7 @@ io.on('connection', function(socket) {
         var index = clients.indexOf(socket);
         if (index > -1) {
             clients.splice(index, 1);
-            console.log('<- client disconnected');
+            DEBUG('<- client disconnected');
         }
     });
 });
@@ -82,5 +88,5 @@ io.on('connection', function(socket) {
 setInterval(requestData, config.request_delay*1000);
 
 http.listen(3000, function() {
-    console.log('ready');
+    console.log('senselog ready');
 });
