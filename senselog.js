@@ -14,7 +14,18 @@ var DEBUG = function(message) {
     if (config.debug && config.debug == true) {
         console.log(message);
     }
-}
+};
+
+var dataHandlerCb = function(data) {
+    MongoClient.connect(config.url, function(err, db) {
+        assert.equal(null, err);
+        collection = db.collection(config.collection);
+        collection.insert(data, function(err, result) {
+            assert.equal(err, null);
+            db.close();
+        });
+    });
+};
 
 var requestData = function() {
     if (clients.length == 0) return; // don't bother if there are no clients
@@ -65,14 +76,7 @@ io.on('connection', function(socket) {
     socket.on('all-data', function(data) {
         DEBUG('-> recieved data from ' + data.name);
         DEBUG('   data: ' + JSON.stringify(data));
-        MongoClient.connect(config.url, function(err, db) {
-            assert.equal(null, err);
-            collection = db.collection(config.collection);
-            collection.insert(data, function(err, result) {
-                assert.equal(err, null);
-                db.close();
-            });
-        });
+        dataHandlerCb(data);
     });
 
 
