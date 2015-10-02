@@ -95,7 +95,7 @@ io.on('connection', function(socket) {
 // Start requesting data at regular intervals
 new CronJob('1 * * * * *', function() {
     requestData();
-}, null, true, 'America/New_York');
+}, null, true, config.timezone);
 
 http.listen(3000, function() {
     console.log('senselog ready');
