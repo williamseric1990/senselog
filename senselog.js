@@ -27,7 +27,7 @@ var dataHandlerCb = function (data) {
   })
 }
 
-var requestData = function () {
+var requestData = function (client) {
   if (clients.length == 0) return; // don't bother if there are no clients
 
   // Check the current client and checked list, clearing if needed
@@ -35,8 +35,13 @@ var requestData = function () {
     checked = []
   }
 
-  // Get a random client
-  var c = clients[Math.floor(Math.random() * clients.length)]
+  if (client) {
+    // Request data from specific client
+    var c = clients[clients.indexOf(client)]
+  } else {
+    // Get a random client
+    var c = clients[Math.floor(Math.random() * clients.length)]
+  }
 
   if (checked.indexOf(c) == -1) {
     // Tell the client to send over sensor data
@@ -48,6 +53,7 @@ var requestData = function () {
 io.on('connection', function (socket) {
   DEBUG('-> client connected (' + socket.id + ')')
   clients[clients.length] = socket
+  requestData(socket)
 
   /* Prototype of feedback feature - customize at will */
   socket.on('feedback', function (value) {
