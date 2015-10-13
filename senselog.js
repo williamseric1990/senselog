@@ -52,26 +52,43 @@ var requestData = function (client) {
 
 io.on('connection', function (socket) {
   DEBUG('-> client connected (' + socket.id + ')')
-  clients[clients.length] = socket
+  clients[socket.id] = {type: undefined}
   requestData(socket)
+
+  /* Identification - required to send or recieve data */
+  socket.on('identify', function (data) {
+    if (data === 'sender') {
+      clients[socket.id].type = 'sender'
+    } else if (data === 'reciever') {
+      clients[socket.id].type = 'reciever'
+    } else {
+      socket.emit('error', 'Identity must be "sender" or "reciever."')
+    }
+  })
 
   /* Prototype of feedback feature - customize at will */
   socket.on('feedback', function (value) {
-    if (value) {
-      DEBUG('on')
-    } else {
-      DEBUG('off')
+    if (clients[socket.id].type === 'sender') {
+      if (value) {
+        DEBUG('on')
+      } else {
+        DEBUG('off')
+      }
     }
   })
 
   /* Data is discarded - placeholder for future features */
   socket.on('sensor-data', function (data) {
-    DEBUG(data)
+    if (clients[socket.id].type === 'sender') {
+      DEBUG(data)
+    }
   })
 
   /* Data is discarded - placeholder for future features */
   socket.on('node-data', function (data) {
-    DEBUG(data)
+    if (clients[socket.id].type === 'sender') {
+      DEBUG(data)
+    }
   })
 
   /* all-data signal
@@ -79,19 +96,35 @@ io.on('connection', function (socket) {
    * the configured MongoDB collection.
    */
   socket.on('all-data', function (data) {
-    DEBUG('-> recieved data from ' + data.name)
-    DEBUG('   data: ' + JSON.stringify(data))
-    dataHandlerCb(data)
+    if (clients[socket.id].type === 'sender') {
+      DEBUG('-> recieved data from ' + data.name)
+      DEBUG('   data: ' + JSON.stringify(data))
+      dataHandlerCb(data)
+    }
+  })
+
+  /* query signal
+   * Used by recievers to query the database
+   */
+  socket.on('query', function (query) {
+    if (clients[socket.id].type === 'reciever') {
+      MongoClient.connect(config.url, function () {
+        assert.equal(null, err)
+        collection = db.collection(config.collection)
+        collection.find(query, function (err, result) {
+          socket.emit('result', result)
+          db.close()
+        })
+      })
+    }
   })
 
   /* disconnect signal
    * Removes a client from the client list
    */
   socket.on('disconnect', function () {
-    var index = clients.indexOf(socket)
-    if (index > -1) {
-      clients.splice(index, 1)
-      DEBUG('<- client disconnected')
+    if (clients[socket.id]) {
+      delete clients[socket.id]
     }
   })
 })
