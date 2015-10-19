@@ -103,6 +103,18 @@ io.on('connection', function (socket) {
     }
   })
 
+  /* sensor-single signal
+   * Handler for data from a single sensor. Identical to
+   * the all-data signal for now.
+   */
+  socket.on('sensor-single', function (data) {
+    if (clients[socket.id].type === 'sender') {
+      DEBUG('-> recieved single sensor from ' + data.name)
+      DEBUG('   data: ' + JSON.stringify(data))
+      dataHandlerCb(data)
+    }
+  })
+
   /* query signal
    * Used by recievers to query the database
    */
