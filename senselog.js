@@ -62,7 +62,7 @@ io.on('connection', function (socket) {
     } else if (data === 'reciever') {
       clients[socket.id].type = 'reciever'
     } else {
-      socket.emit('error', 'Identity must be "sender" or "reciever."')
+      socket.emit('iderror', 'Identity must be "sender" or "reciever."')
     }
   })
 
