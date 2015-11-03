@@ -31,7 +31,7 @@ var requestData = function (client) {
   if (Object.keys(clients).length == 0) return; // don't bother if there are no clients
 
   // Check the current client and checked list, clearing if needed
-  if (checked.length >= clients.length) {
+  if (checked.length >= Object.keys(clients).length) {
     checked = []
   }
 
@@ -45,9 +45,10 @@ var requestData = function (client) {
     c = clients[k].socket
   }
 
-  if (checked.indexOf(c) == -1) {
+  if (checked.indexOf(c.id) == -1) {
     // Tell the client to send over sensor data
     DEBUG('-> requesting data from ' + c.id)
+    checked[checked.length] = c.id
     c.emit('all')
   }
 }
