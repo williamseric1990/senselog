@@ -53,14 +53,16 @@ var requestData = function (client) {
 io.on('connection', function (socket) {
   DEBUG('-> client connected (' + socket.id + ')')
   clients[socket.id] = {type: undefined}
-  requestData(socket)
 
   /* Identification - required to send or recieve data */
   socket.on('identify', function (data) {
     if (data === 'sender') {
       clients[socket.id].type = 'sender'
+      console.log('id recv ' + socket.id + ': sender, requesting data')
+      requestData(socket)
     } else if (data === 'reciever') {
       clients[socket.id].type = 'reciever'
+      console.log('id recv ' + socket.id + ': reciever')
     } else {
       socket.emit('iderror', 'Identity must be "sender" or "reciever."')
     }
