@@ -56,6 +56,7 @@ var requestData = function (client) {
 io.on('connection', function (socket) {
   DEBUG('-> client connected (' + socket.id + ')')
   clients[socket.id] = {socket: socket, type: undefined}
+  socket.emit('identify')
 
   /* Identification - required to send or recieve data */
   socket.on('identify', function (data) {
