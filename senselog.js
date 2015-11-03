@@ -7,7 +7,7 @@ var assert = require('assert')
 
 var CronJob = require('cron').CronJob
 
-var clients = []
+var clients = {}
 var checked = []
 
 var DEBUG = function (message) {
@@ -28,19 +28,21 @@ var dataHandlerCb = function (data) {
 }
 
 var requestData = function (client) {
-  if (clients.length == 0) return; // don't bother if there are no clients
+  if (Object.keys(clients).length == 0) return; // don't bother if there are no clients
 
   // Check the current client and checked list, clearing if needed
   if (checked.length >= clients.length) {
     checked = []
   }
 
+  var c
   if (client) {
     // Request data from specific client
-    var c = clients[clients.indexOf(client)]
+    c = client
   } else {
     // Get a random client
-    var c = clients[Math.floor(Math.random() * clients.length)]
+    var k = Object.keys(clients)[Math.floor(Math.random() * Object.keys(clients).length)]
+    c = clients[k].socket
   }
 
   if (checked.indexOf(c) == -1) {
@@ -52,7 +54,7 @@ var requestData = function (client) {
 
 io.on('connection', function (socket) {
   DEBUG('-> client connected (' + socket.id + ')')
-  clients[socket.id] = {type: undefined}
+  clients[socket.id] = {socket: socket, type: undefined}
 
   /* Identification - required to send or recieve data */
   socket.on('identify', function (data) {
