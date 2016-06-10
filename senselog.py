@@ -65,7 +65,9 @@ def senselog(config, verbose):
         cfg = {
             'request_interval': 60,
             'timezone': 'America/New_York',
-            'debug': False
+            'debug': False,
+            'host': '0.0.0.0',
+            'port': 3000
         }
     else:
         cfg = load_config(fn=config)
@@ -79,20 +81,29 @@ def senselog(config, verbose):
         if 'request_interval' not in cfg:
             cfg['request_interval'] = 60
 
+        if 'host' not in cfg:
+            cfg['host'] = '0.0.0.0'
+
+        if 'port' not in cfg:
+            cfg['port'] = 3000
+
     if cfg['debug']:
         verbose = True
 
     _debug(verbose, chalk.green, 'loaded config')
 
     _debug(verbose, chalk.blue, 'starting senselog server')
-    server = SenselogServer(cfg)
+    server = socketserver.UDPServer((cfg['host'], cfg['port']), SenselogServer)
+    server.config = cfg
+
+    chalk.blue('senselog ready')
+
+    server.serve_forever()
 
     @atexit.register
     def close():
         chalk.blue('shutting down')
         server.shutdown()
-
-    chalk.blue('senselog ready')
 
 if __name__ == '__main__':
     senselog()
