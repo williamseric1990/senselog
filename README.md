@@ -1,4 +1,5 @@
 # senselog
-[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://github.com/feross/standard)
 
-A MongoDB-based sensor data storage daemon, acts as the server for [sensed](http://github.com/sli/sensed).
+[![PEP8](https://img.shields.io/badge/code%20style-pep8-orange.svg)](https://www.python.org/dev/peps/pep-0008/)
+
+A reference server implementation for [sensed](http://github.com/sli/sensed) clients.
