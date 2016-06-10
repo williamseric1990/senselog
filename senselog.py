@@ -1,9 +1,10 @@
 import os
-import msgpack
+import json
 import chalk
 import click
 import atexit
 import platform
+import socketserver
 
 from lib import SenselogServer
 
