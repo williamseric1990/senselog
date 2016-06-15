@@ -6,7 +6,7 @@ import atexit
 import platform
 import socketserver
 
-from lib import SenselogServer
+from lib.SensedServer import SensedServer
 
 
 def _debug(verbose, f, arg):
@@ -98,7 +98,7 @@ def senselog(config, debug, host, port, interval, verbose):
     _debug(verbose, chalk.green, 'loaded config')
 
     _debug(verbose, chalk.blue, 'starting senselog server')
-    server = socketserver.UDPServer((cfg['host'], cfg['port']), SenselogServer)
+    server = socketserver.UDPServer((cfg['host'], cfg['port']), SensedServer)
     server.config = cfg
 
     chalk.blue('senselog ready')
