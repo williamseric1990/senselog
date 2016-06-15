@@ -58,17 +58,24 @@ def load_config(fn=None):
 
 @click.command()
 @click.option('--config', '-c', default=None,
-              help='Configuration file for this instance.')
+              help='Configuration file for this instance')
+@click.option('--debug', '-d', is_flag=True,
+              help='Enable debugging output')
+@click.option('--host', '-h', default='0.0.0.0',
+              help='Binding address for this instance')
+@click.option('--port', '-p', default=3000,
+              help='Binding port for this instance')
+@click.option('--interval', '-i', default=60,
+              help='Request interval in seconds')
 @click.option('--verbose', '-V', is_flag=True,
               help='Enable verbose output')
-def senselog(config, verbose):
+def senselog(config, debug, host, port, interval, verbose):
     if config is None:
         cfg = {
-            'request_interval': 60,
-            'timezone': 'America/New_York',
             'debug': False,
             'host': '0.0.0.0',
-            'port': 3000
+            'port': 3000,
+            'interval': 60
         }
     else:
         cfg = load_config(fn=config)
@@ -76,17 +83,14 @@ def senselog(config, verbose):
         if 'debug' not in cfg:
             cfg['debug'] = False
 
-        if 'timezone' not in cfg:
-            cfg['timezone'] = 'America/New_York'
-
-        if 'request_interval' not in cfg:
-            cfg['request_interval'] = 60
-
         if 'host' not in cfg:
             cfg['host'] = '0.0.0.0'
 
         if 'port' not in cfg:
             cfg['port'] = 3000
+
+        if 'interval' not in cfg:
+            cfg['interval'] = 60
 
     if cfg['debug']:
         verbose = True

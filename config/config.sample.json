@@ -1,7 +1,6 @@
 {
-  "debug": true,
-  "url": "mongodb://localhost:27017/sensornetwork",
-  "collection": "sensordata",
-  "request_interval": 60,
-  "timezone": "America/New_York"
+	"debug": false,
+	"host": "localhost",
+	"port": 3000,
+	"interval": 60
 }
