@@ -6,7 +6,7 @@ import atexit
 import platform
 import socketserver
 
-from lib.SensedServer import SensedServer
+from lib import SensedServer
 
 
 def _debug(verbose, f, arg):
