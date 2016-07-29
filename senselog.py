@@ -6,7 +6,7 @@ import atexit
 import platform
 import socketserver
 
-from lib import SensedServer
+from lib.SensedClient import SensedClient
 
 
 def _debug(verbose, f, arg):
@@ -59,21 +59,19 @@ def load_config(fn=None):
 @click.command()
 @click.option('--config', '-c', default=None,
               help='Configuration file for this instance')
-@click.option('--debug', '-d', is_flag=True,
-              help='Enable debugging output')
-@click.option('--host', '-h', default='0.0.0.0',
-              help='Binding address for this instance')
-@click.option('--port', '-p', default=3000,
-              help='Binding port for this instance')
+@click.option('--hosts', '-h', default=[],
+              help='Host/port pairs to query. (host:port,host:post,...)')
 @click.option('--interval', '-i', default=60,
               help='Request interval in seconds')
 @click.option('--verbose', '-V', is_flag=True,
               help='Enable verbose output')
-def senselog(config, debug, host, port, interval, verbose):
+def senselog(config, hosts, interval, verbose):
     if config is None:
+        if not hosts == []:
+            hosts = [tuple(h.split(':')) for h in hosts.split(',')]
         cfg = {
             'debug': False,
-            'host': '0.0.0.0',
+            'hosts': [],
             'port': 3000,
             'interval': 60
         }
@@ -83,14 +81,13 @@ def senselog(config, debug, host, port, interval, verbose):
         if 'debug' not in cfg:
             cfg['debug'] = False
 
-        if 'host' not in cfg:
-            cfg['host'] = '0.0.0.0'
-
-        if 'port' not in cfg:
-            cfg['port'] = 3000
+        if 'hosts' not in cfg:
+            cfg['hosts'] = []
 
         if 'interval' not in cfg:
             cfg['interval'] = 60
+
+        cfg['hosts'] = [tuple(h) for h in cfg['hosts']]
 
     if cfg['debug']:
         verbose = True
@@ -98,17 +95,16 @@ def senselog(config, debug, host, port, interval, verbose):
     _debug(verbose, chalk.green, 'loaded config')
 
     _debug(verbose, chalk.blue, 'starting senselog server')
-    server = socketserver.UDPServer((cfg['host'], cfg['port']), SensedServer)
-    server.config = cfg
-
-    chalk.blue('senselog ready')
-
-    server.serve_forever()
+    client = SensedClient(cfg)
 
     @atexit.register
     def close():
         chalk.blue('shutting down')
-        server.shutdown()
+
+    chalk.blue(':: senselog ready')
+
+    client.run_meta()
+    client.run_forever()
 
 if __name__ == '__main__':
     senselog()
