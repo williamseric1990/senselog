@@ -1,7 +1,0 @@
-{
-	"debug": false,
-	"interval": 60,
-	"hosts": [
-		["localhost", 3000]
-	]
-}
